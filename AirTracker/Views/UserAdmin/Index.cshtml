@@ -1,0 +1,51 @@
+﻿@model List<(Microsoft.AspNetCore.Identity.IdentityUser User, IList<string> Roles)>
+@{
+    ViewData["Title"] = "Zarządzanie użytkownikami";
+}
+
+<h2>Zarządzanie użytkownikami</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Rola</th>
+            <th>Akcja</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.User.Email</td>
+                <td>@string.Join(", ", item.Roles)</td>
+                <td class="d-flex gap-2">
+                    <form asp-action="Delete" method="post" onsubmit="return confirm('Usunąć użytkownika?');">
+                        <input type="hidden" name="id" value="@item.User.Id" />
+                        <button class="btn btn-danger btn-sm" type="submit">🗑 Usuń</button>
+                    </form>
+
+                    <form asp-action="ChangeRole" method="post">
+                        <input type="hidden" name="id" value="@item.User.Id" />
+                        <select name="newRole" class="form-select form-select-sm d-inline-block w-auto me-2">
+                            <option value="User" selected="@item.Roles.Contains("User")">User</option>
+                            <option value="Admin" selected="@item.Roles.Contains("Admin")">Admin</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" type="submit">Zmień rolę</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Admin" class="btn btn-secondary">⬅ Powrót do panelu admina</a>

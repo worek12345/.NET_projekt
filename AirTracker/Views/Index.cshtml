@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "AirTracker – Strona główna";
+}
+
+<div class="container mt-4">
+    <h1>@ViewData["Title"]</h1>
+    <p>Witaj w aplikacji AirTracker!</p>
+    <ul>
+        <li><a asp-controller="Home" asp-action="Index">Strona główna</a></li>
+        <li><a asp-controller="AirQuality" asp-action="Index">Jakość powietrza</a></li>
+        <li><a asp-controller="Sensors" asp-action="Index">Zarządzanie sensorami</a></li>
+    </ul>
+</div>

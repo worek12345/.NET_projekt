@@ -1,0 +1,147 @@
+﻿@model AirTracker.Models.ViewModels.AirQualityCompareViewModel
+
+@{
+    ViewData["Title"] = "Porównanie jakości powietrza";
+}
+
+<div class="container mt-4">
+    <h2>Porównanie sensora: <strong>@Model.SensorName</strong></h2>
+    <form method="get" asp-controller="AirQuality" asp-action="ExportComparisonCsv" class="mb-4">
+        <input type="hidden" name="sensorId" value="@Model.SensorName" />
+        <input type="hidden" name="locationId1" value="@Model.Location1.Id" />
+        <input type="hidden" name="locationId2" value="@Model.Location2.Id" />
+        <button type="submit" class="btn btn-outline-success">Eksportuj porównanie do CSV</button>
+    </form>
+
+    <h4>Porównanie danych pomiarowych</h4>
+    <div class="table-responsive mb-5">
+        <table class="table table-bordered table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Data</th>
+                    <th>Parametr</th>
+                    <th>@Model.Location1.City - @Model.Location1.Name</th>
+                    <th>@Model.Location2.City - @Model.Location2.Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var grouped = Model.Data1.Concat(Model.Data2)
+                    .GroupBy(x => new { x.RetrievedAt, x.Parameter })
+                    .OrderBy(g => g.Key.RetrievedAt)
+                    .ThenBy(g => g.Key.Parameter)
+                    .ToList();
+
+                    for (int i = 0; i < grouped.Count; i++)
+                    {
+                        var group = grouped[i];
+                        var d1 = Model.Data1.FirstOrDefault(d => d.RetrievedAt == group.Key.RetrievedAt && d.Parameter == group.Key.Parameter);
+                        var d2 = Model.Data2.FirstOrDefault(d => d.RetrievedAt == group.Key.RetrievedAt && d.Parameter == group.Key.Parameter);
+                        var rowClass = i >= 10 ? "d-none extra-compare-row" : "";
+
+                        <tr class="@rowClass">
+                            <td>@group.Key.RetrievedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@group.Key.Parameter</td>
+                            <td>@(d1 != null ? d1.Value.ToString("F2") : "-")</td>
+                            <td>@(d2 != null ? d2.Value.ToString("F2") : "-")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+
+        </table>
+    </div>
+    <button id="toggleCompareTableBtn" class="btn btn-sm btn-outline-secondary mb-4">
+        Pokaż więcej
+    </button>
+
+    <h4>Porównanie na wykresie</h4>
+    <canvas id="compareChart" height="120"></canvas>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const data1 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Data1.Select(x => new
+            {
+                time = x.RetrievedAt.ToString("yyyy-MM-dd HH:mm"),
+                value = x.Value
+            })));
+
+        const data2 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Data2.Select(x => new
+            {
+                time = x.RetrievedAt.ToString("yyyy-MM-dd HH:mm"),
+                value = x.Value
+            })));
+
+        const labels = [...new Set([...data1.map(d => d.time), ...data2.map(d => d.time)])].sort();
+
+        const series1 = labels.map(label => {
+            const found = data1.find(d => d.time === label);
+            return found ? found.value : null;
+        });
+
+        const series2 = labels.map(label => {
+            const found = data2.find(d => d.time === label);
+            return found ? found.value : null;
+        });
+
+        const ctx = document.getElementById('compareChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Location1.City + " - " + Model.Location1.Name)),
+                        data: series1,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 2,
+                        spanGaps: true
+
+                    },
+                    {
+                        label: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Location2.City + " - " + Model.Location2.Name)),
+                        data: series2,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 2,
+                        spanGaps: true
+
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true, position: 'top' }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Czas pomiaru' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Wartość' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        document.getElementById("toggleCompareTableBtn")?.addEventListener("click", function () {
+            const rows = document.querySelectorAll(".extra-compare-row");
+            const isHidden = rows[0]?.classList.contains("d-none");
+            rows.forEach(row => row.classList.toggle("d-none"));
+            this.textContent = isHidden ? "Pokaż mniej" : "Pokaż więcej";
+        });
+    </script>
+
+}

@@ -1,0 +1,24 @@
+﻿@model List<AirTracker.Models.Location>
+
+@{
+    ViewData["Title"] = "Porównaj z innym regionem";
+}
+
+<h2>Porównanie z lokalizacją: <strong>@ViewBag.LocationName1</strong></h2>
+
+<form asp-controller="AirQuality" asp-action="Compare" method="get">
+    <input type="hidden" name="sensorId" value="@ViewBag.SensorId" />
+    <input type="hidden" name="locationId1" value="@ViewBag.LocationId1" />
+
+    <div class="form-group mb-3">
+        <label for="locationId2" class="form-label">Wybierz drugą lokalizację:</label>
+        <select class="form-select" id="locationId2" name="locationId2" required>
+            @foreach (var loc in Model)
+            {
+                <option value="@loc.Id">@loc.City - @loc.Name</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success">Pokaż porównanie</button>
+</form>

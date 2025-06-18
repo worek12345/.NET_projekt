@@ -1,0 +1,10 @@
+﻿namespace AirTracker.wwwroot.css {
+    #map {
+    height: 500px;
+    width: 100%;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+}

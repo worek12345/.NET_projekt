@@ -1,0 +1,157 @@
+﻿@model AirTracker.Models.ViewModels.SensorDetailsViewModel
+
+@{
+    ViewData["Title"] = "Szczegóły sensora";
+}
+
+<div class="container py-4 px-3">
+    <div class="card shadow-lg mb-4 rounded-4 border-0" style="background: linear-gradient(135deg,#f9fafc 80%,#e9e4ff 100%);">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="fw-bold mb-0">
+                    <i class="bi bi-cpu me-2 text-primary"></i> Szczegóły sensora
+                </h2>
+                <div>
+                    <a asp-action="Edit" asp-route-id="@Model.Sensor.Id" class="btn btn-outline-primary rounded-pill me-2">
+                        <i class="bi bi-pencil"></i> Edytuj
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill">
+                        <i class="bi bi-list"></i> Powrót do listy
+                    </a>
+                </div>
+            </div>
+            <hr class="mb-4" />
+            <dl class="row mb-0">
+                <dt class="col-sm-3 text-secondary">Nazwa</dt>
+                <dd class="col-sm-9">@Model.Sensor.Name</dd>
+                <dt class="col-sm-3 text-secondary">OpenAQ Sensor ID</dt>
+                <dd class="col-sm-9">@Model.Sensor.OpenAQSensorId</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="row text-center mb-4 g-3">
+        @* Kafle z podsumowaniem *@
+        <div class="col-6 col-md-2">
+            <div class="card rounded-4 border-0 shadow-sm h-100 bg-light">
+                <div class="card-body py-3">
+                    <div class="text-muted small mb-1">Min</div>
+                    <div class="fw-bold fs-4">@Model.Summary.Min.ToString("F2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card rounded-4 border-0 shadow-sm h-100 bg-light">
+                <div class="card-body py-3">
+                    <div class="text-muted small mb-1">2nd perc. (q02)</div>
+                    <div class="fw-bold fs-4">@Model.Summary.Q02.ToString("F2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card rounded-4 border-0 shadow-sm h-100 bg-light">
+                <div class="card-body py-3">
+                    <div class="text-muted small mb-1">25th perc. (q25)</div>
+                    <div class="fw-bold fs-4">@Model.Summary.Q25.ToString("F2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card rounded-4 border-0 shadow-sm h-100 bg-light">
+                <div class="card-body py-3">
+                    <div class="text-muted small mb-1">Mediana</div>
+                    <div class="fw-bold fs-4">@Model.Summary.Median.ToString("F2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card rounded-4 border-0 shadow-sm h-100 bg-light">
+                <div class="card-body py-3">
+                    <div class="text-muted small mb-1">75th perc. (q75)</div>
+                    <div class="fw-bold fs-4">@Model.Summary.Q75.ToString("F2")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card rounded-4 border-0 shadow-sm h-100 bg-light">
+                <div class="card-body py-3">
+                    <div class="text-muted small mb-1">Max</div>
+                    <div class="fw-bold fs-4">@Model.Summary.Max.ToString("F2")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow border-0 rounded-4 p-0 mb-5">
+        <div class="card-body">
+            <h4 class="mb-3"><i class="bi bi-bar-chart-line me-1 text-primary"></i> Ostatnie pomiary (maks. 20)</h4>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data pomiaru</th>
+                            <th>Parametr</th>
+                            <th>Wartość</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model.Data)
+                        {
+                            <tr>
+                                <td>@m.RetrievedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>@m.Parameter (@m.Units)</td>
+                                <td class="fw-bold">@m.Value.ToString("F2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="my-4">
+                <h5 class="mb-3">Wykres pomiarów (ostatnie 2 dni)</h5>
+                <canvas id="airQualityChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@{
+    var labels = Model.Data.Select(m => m.RetrievedAt.ToString("dd.MM.yyyy HH:mm")).ToList();
+    var values = Model.Data.Select(m => m.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)).ToList();
+}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(labels));
+    const data = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(values));
+
+    const ctx = document.getElementById('airQualityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Wartość pomiaru',
+                data: data,
+                fill: true,
+                borderColor: 'rgba(102, 51, 204, 0.7)',
+                backgroundColor: 'rgba(102, 51, 204, 0.15)',
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: 'rgba(102, 51, 204, 1)',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    display: true,
+                    title: { display: true, text: 'Data pomiaru' }
+                },
+                y: {
+                    display: true,
+                    title: { display: true, text: 'Wartość' }
+                }
+            }
+        }
+    });
+</script>

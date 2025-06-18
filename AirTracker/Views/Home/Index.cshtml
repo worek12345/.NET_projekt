@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="jumbotron bg-light p-5 rounded mb-4 text-center">
+    <h1 class="display-4">Witaj w AirTracker!</h1>
+    <p class="lead">Monitoruj jakość powietrza swoich czujników w czasie rzeczywistym.</p>
+    <hr class="my-4" />
+    <p>Przejdź do panelu, aby zobaczyć dane:</p>
+    <a class="btn btn-primary btn-lg me-2" asp-controller="AirQuality" asp-action="Index">
+        <i class="bi bi-speedometer2 me-1"></i> Jakość powietrza
+    </a>
+    <a class="btn btn-outline-secondary btn-lg" asp-controller="Sensors" asp-action="Index">
+        <i class="bi bi-geo-alt-fill me-1"></i> Zarządzaj sensorami
+    </a>
+</div>
+
+<!-- banner -->
+<div class="container mb-4">
+    <img src="~/images/banner.jpg" alt="Air quality banner" class="img-fluid rounded shadow-sm" />
+</div>
+
+<!-- trzy kafelki -->
+<div class="container">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <a asp-controller="AirQuality" asp-action="Index" class="card h-100 text-center shadow-sm text-decoration-none text-reset">
+                <div class="card-body">
+                    <i class="bi bi-speedometer2 display-1 text-primary mb-3"></i>
+                    <h5 class="card-title">Szybki podgląd</h5>
+                    <p class="card-text">Wybierz sensor i zobacz ostatnie pomiary.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Sensors" asp-action="Index" class="card h-100 text-center shadow-sm text-decoration-none text-reset">
+                <div class="card-body">
+                    <i class="bi bi-geo-alt-fill display-1 text-success mb-3"></i>
+                    <h5 class="card-title">Zarządzaj sensorami</h5>
+                    <p class="card-text">Dodawaj, edytuj lub usuwaj swoje czujniki.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="https://docs.openaq.org/" target="_blank" class="card h-100 text-center shadow-sm text-decoration-none text-reset">
+                <div class="card-body">
+                    <i class="bi bi-info-circle-fill display-1 text-info mb-3"></i>
+                    <h5 class="card-title">O projekcie</h5>
+                    <p class="card-text">Dowiedz się więcej o OpenAQ i jak wykorzystujemy ich API.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

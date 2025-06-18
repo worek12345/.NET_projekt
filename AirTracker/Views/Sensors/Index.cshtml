@@ -1,0 +1,33 @@
+﻿@model IEnumerable<AirTracker.Models.Sensor>
+
+@{
+    ViewData["Title"] = "Manage Sensors";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <p><a asp-action="Create" class="btn btn-primary">Add New Sensor</a></p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>OpenAQ Sensor/Location ID</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>@s.Name</td>
+                    <td>@s.OpenAQSensorId</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-secondary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

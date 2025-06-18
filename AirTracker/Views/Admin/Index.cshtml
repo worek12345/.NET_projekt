@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Panel administratora";
+}
+
+<h1>Panel administratora</h1>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="alert alert-info text-center">
+            <h3>@ViewBag.TotalLocations</h3>
+            <p>Lokalizacje</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-success text-center">
+            <h3>@ViewBag.TotalSensors</h3>
+            <p>Sensory</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-warning text-center">
+            <h3>@ViewBag.MostUsedSensor</h3>
+            <p>Najczęściej używany sensor</p>
+        </div>
+    </div>
+    <a class="btn btn-outline-primary" href="/UserAdmin">👥 Zarządzaj użytkownikami</a>
+
+</div>
